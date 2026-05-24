@@ -26,30 +26,30 @@ export const ResultsChart: React.FC<ResultsChartProps> = ({ votes }) => {
     }));
 
     // Color palette for bars
-    const colors = ['#0ea5e9', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981'];
+    const colors = ['#5e6ad2', '#828fff', '#6e79e0', '#525db8', '#434c95'];
 
     return (
-        <div className="glass p-4 rounded-lg animate-slide-up">
-            <h3 className="text-lg font-bold mb-4 text-center gradient-text">
+        <div className="landing-room-panel animate-slide-up p-5 md:p-6">
+            <h3 className="mb-5 text-center font-display text-[2rem] font-semibold tracking-[-0.04em] text-[var(--landing-ink)]">
                 Voting Results
             </h3>
 
             {/* Statistics */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
-                <div className="glass p-3 rounded-lg text-center">
-                    <p className="text-gray-400 text-xs mb-1 uppercase tracking-wide">Average</p>
+                <div className="landing-room-subpanel p-3 text-center">
+                    <p className="mb-1 text-xs uppercase tracking-wide text-[var(--landing-ink-tertiary)]">Average</p>
                     <p className="text-xl font-bold text-primary-400">{stats.average}</p>
                 </div>
-                <div className="glass p-3 rounded-lg text-center">
-                    <p className="text-gray-400 text-xs mb-1 uppercase tracking-wide">Median</p>
+                <div className="landing-room-subpanel p-3 text-center">
+                    <p className="mb-1 text-xs uppercase tracking-wide text-[var(--landing-ink-tertiary)]">Median</p>
                     <p className="text-xl font-bold text-secondary-400">{stats.median}</p>
                 </div>
-                <div className="glass p-3 rounded-lg text-center">
-                    <p className="text-gray-400 text-xs mb-1 uppercase tracking-wide">Mode</p>
-                    <p className="text-xl font-bold text-purple-400">{stats.mode.join(', ')}</p>
+                <div className="landing-room-subpanel p-3 text-center">
+                    <p className="mb-1 text-xs uppercase tracking-wide text-[var(--landing-ink-tertiary)]">Mode</p>
+                    <p className="text-xl font-bold text-primary-400">{stats.mode.join(', ')}</p>
                 </div>
-                <div className="glass p-3 rounded-lg text-center">
-                    <p className="text-gray-400 text-xs mb-1 uppercase tracking-wide">Consensus</p>
+                <div className="landing-room-subpanel p-3 text-center">
+                    <p className="mb-1 text-xs uppercase tracking-wide text-[var(--landing-ink-tertiary)]">Consensus</p>
                     <p className={`text-xl font-bold ${stats.consensus ? 'text-green-400' : 'text-orange-400'}`}>
                         {stats.consensus ? '✓' : '✗'}
                     </p>
@@ -88,7 +88,7 @@ export const ResultsChart: React.FC<ResultsChartProps> = ({ votes }) => {
             </div>
 
             {stats.consensus && (
-                <div className="mt-4 p-3 bg-green-500/10 border border-green-500/50 rounded-lg text-center">
+                <div className="mt-4 rounded-lg border border-green-500/50 bg-green-500/10 p-3 text-center">
                     <p className="text-sm text-green-400 font-semibold">
                         🎉 Consensus reached! All votes are the same.
                     </p>

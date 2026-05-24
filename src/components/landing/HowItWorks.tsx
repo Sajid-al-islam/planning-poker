@@ -1,83 +1,69 @@
 import React from 'react';
-import { PlusCircle, Send, Vote, MessageCircle, Eye } from 'lucide-react';
+import { Eye, MessageCircle, PlusCircle, Send, Vote } from 'lucide-react';
 
 const steps = [
     {
-        icon: PlusCircle,
+        number: '1',
         title: 'Create Game',
         description: 'Start a new planning poker session with a unique game link',
-        color: 'from-blue-500 to-cyan-500',
+        icon: PlusCircle,
     },
     {
-        icon: Send,
+        number: '2',
         title: 'Invite Team',
         description: 'Share the game link with your team members',
-        color: 'from-purple-500 to-pink-500',
+        icon: Send,
     },
     {
-        icon: Vote,
+        number: '3',
         title: 'Vote',
         description: 'Each team member selects their estimate privately',
-        color: 'from-green-500 to-emerald-500',
+        icon: Vote,
     },
     {
-        icon: MessageCircle,
+        number: '4',
         title: 'Discuss',
         description: 'Talk through different perspectives and estimates',
-        color: 'from-orange-500 to-red-500',
+        icon: MessageCircle,
     },
     {
-        icon: Eye,
+        number: '5',
         title: 'Reveal & Finalize',
         description: 'Show all votes and agree on the final estimate',
-        color: 'from-pink-500 to-purple-500',
+        icon: Eye,
     },
 ];
 
 export const HowItWorks: React.FC = () => {
     return (
-        <section className="py-20 px-4 bg-gradient-to-b from-transparent to-dark-900/50">
-            <div className="max-w-6xl mx-auto">
-                <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                        <span className="gradient-text-accent">How It Works</span>
+        <section className="px-4 py-16 md:px-6 md:py-24">
+            <div className="mx-auto max-w-7xl">
+                <div className="mx-auto max-w-4xl text-center">
+                    <h2 className="font-display text-[2.5rem] font-semibold leading-[1.02] tracking-[-0.05em] text-[var(--landing-ink)] md:text-[4rem]">
+                        How It Works
                     </h2>
-                    <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+                    <p className="mt-5 text-[17px] leading-8 text-[var(--landing-ink-muted)]">
                         Get started with planning poker in 5 simple steps
                     </p>
                 </div>
 
-                <div className="relative">
-                    {/* Connection line */}
-                    <div className="hidden md:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-20"></div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-                        {steps.map((step, index) => {
-                            const Icon = step.icon;
-                            return (
-                                <div key={index} className="relative">
-                                    <div className="flex flex-col items-center text-center">
-                                        {/* Step number */}
-                                        <div className="absolute -top-4 -left-4 w-8 h-8 rounded-full bg-dark-800 border-2 border-primary-500 flex items-center justify-center font-bold text-sm">
-                                            {index + 1}
-                                        </div>
-
-                                        {/* Icon */}
-                                        <div className={`w-20 h-20 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center mb-4 shadow-xl hover:scale-110 transition-transform`}>
-                                            <Icon className="w-10 h-10 text-white" />
-                                        </div>
-
-                                        {/* Content */}
-                                        <h3 className="text-lg font-bold mb-2 text-white">
-                                            {step.title}
-                                        </h3>
-                                        <p className="text-sm text-gray-400">
-                                            {step.description}
-                                        </p>
-                                    </div>
+                <div className="landing-how-wrap mt-14">
+                    <div className="landing-how-line" />
+                    <div className="grid gap-8 md:grid-cols-2 xl:grid-cols-5">
+                        {steps.map(({ number, title, description, icon: Icon }) => (
+                            <article key={number} className="landing-how-card">
+                                <div className="landing-how-number">{number}</div>
+                                <div className="landing-how-icon">
+                                    <Icon className="h-9 w-9 text-[var(--landing-ink)]" />
                                 </div>
-                            );
-                        })}
+                                <h3 className="mt-8 text-[20px] font-semibold tracking-[-0.03em] text-[var(--landing-ink)]">
+                                    {title}
+                                </h3>
+                                <p className="mt-4 text-[15px] leading-7 text-[var(--landing-ink-subtle)]">
+                                    {description}
+                                </p>
+                            </article>
+                        ))}
                     </div>
                 </div>
             </div>

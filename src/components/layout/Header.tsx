@@ -1,32 +1,33 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
-import { Button } from '../common/Button';
+import { ArrowUpRight, Circle } from 'lucide-react';
 
 export const Header: React.FC = () => {
     const navigate = useNavigate();
 
     return (
-        <header className="fixed top-0 left-0 right-0 z-50 glass-strong">
-            <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
-                {/* Logo */}
+        <header className="fixed left-0 right-0 top-0 z-50 border-b border-[var(--landing-hairline)] bg-[rgba(1,1,2,0.9)] backdrop-blur-2xl">
+            <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 md:px-6">
                 <div
                     onClick={() => navigate('/')}
-                    className="flex items-center gap-2 cursor-pointer hover:scale-105 transition-transform"
+                    className="flex cursor-pointer items-center gap-3"
                 >
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center">
-                        <Sparkles className="w-6 h-6 text-white" />
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--landing-hairline)] bg-[var(--landing-surface-1)]">
+                        <Circle className="h-4 w-4 fill-[var(--landing-primary)] text-[var(--landing-primary)]" />
                     </div>
-                    <span className="text-xl font-bold gradient-text">
+                    <span className="font-display text-lg uppercase tracking-[0.22em] text-[var(--landing-ink)] md:text-xl">
                         Planning Poker
                     </span>
                 </div>
 
-                {/* Start Game Button */}
-                <Button variant="primary" onClick={() => navigate('/create')}>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Start New Game
-                </Button>
+                <button
+                    type="button"
+                    onClick={() => navigate('/create')}
+                    className="landing-button landing-button-secondary !px-4 !py-3 !text-xs md:!text-sm"
+                >
+                    Start a session
+                    <ArrowUpRight className="h-4 w-4" />
+                </button>
             </div>
         </header>
     );

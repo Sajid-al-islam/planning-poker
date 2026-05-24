@@ -1,64 +1,42 @@
 import React from 'react';
-import { Github, Heart, Linkedin } from 'lucide-react';
+import { Github, Linkedin } from 'lucide-react';
 
 export const Footer: React.FC = () => {
     return (
-        <footer className="py-12 px-4 border-t border-white/10">
-            <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                    {/* About */}
-                    <div>
-                        <h4 className="font-bold mb-4 text-white">Planning Poker</h4>
-                        <p className="text-gray-400 text-sm">
-                            The easiest way for agile teams to estimate work and collaborate in real-time.
-                        </p>
-                    </div>
-
-                    {/* Quick Links */}
-                    <div>
-                        <h4 className="font-bold mb-4 text-white">Quick Links</h4>
-                        <ul className="space-y-2 text-sm">
-                            <li>
-                                <a href="#features" className="text-gray-400 hover:text-primary-400 transition-colors">
-                                    Features
-                                </a>
-                            </li>
-                            <li>
-                                <a href="#how-it-works" className="text-gray-400 hover:text-primary-400 transition-colors">
-                                    How It Works
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Social */}
-                    <div>
-                        <h4 className="font-bold mb-4 text-white">Connect</h4>
-                        <div className="flex gap-4">
-                            <a
-                                href="https://github.com/sajid-al-islam"
-                                target="_blank"
-                                className="w-10 h-10 glass rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
-                            >
-                                <Github className="w-5 h-5" />
-                            </a>
-                            <a
-                                target="_blank"
-                                href="https://www.linkedin.com/in/muhammad-sajidul-islam"
-                                className="w-10 h-10 glass rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
-                            >
-                                <Linkedin className="w-5 h-5" />
-                            </a>
-                        </div>
-                    </div>
+        <footer className="border-t border-[var(--landing-hairline)] px-4 py-10 md:px-6 md:py-12">
+            <div className="mx-auto flex max-w-7xl flex-col gap-8 md:flex-row md:items-end md:justify-between">
+                <div className="max-w-xl">
+                    <p className="text-xs uppercase tracking-[0.24em] text-[var(--landing-ink-tertiary)]">Planning Poker</p>
+                    <p className="mt-3 text-sm leading-7 text-[var(--landing-ink-subtle)]">
+                        Fast session setup, clean reveal flow, issue tracking, CSV export, and just enough personality for team estimation.
+                    </p>
                 </div>
 
-                {/* Copyright */}
-                <div className="pt-8 border-t border-white/10 text-center text-sm text-gray-500">
-                    <p className="flex items-center justify-center gap-2">
-                        Made with <Heart className="w-4 h-4 text-red-500" fill="currentColor" /> for agile teams everywhere
-                    </p>
-                    <p className="mt-2">© 2025 Planning Poker. All rights reserved.</p>
+                <div className="flex flex-wrap items-center gap-6 text-sm text-[var(--landing-ink-subtle)]">
+                    <a href="#features" className="transition-colors hover:text-[var(--landing-ink)]">
+                        Features
+                    </a>
+                    <a href="#how-it-works" className="transition-colors hover:text-[var(--landing-ink)]">
+                        Workflow
+                    </a>
+                    <div className="flex gap-3">
+                        <a
+                            href="https://github.com/sajid-al-islam"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--landing-hairline)] bg-[var(--landing-surface-1)] transition-colors hover:bg-[var(--landing-surface-2)]"
+                        >
+                        <Github className="h-4 w-4" />
+                        </a>
+                        <a
+                            href="https://www.linkedin.com/in/muhammad-sajidul-islam"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--landing-hairline)] bg-[var(--landing-surface-1)] transition-colors hover:bg-[var(--landing-surface-2)]"
+                        >
+                            <Linkedin className="h-4 w-4" />
+                        </a>
+                    </div>
                 </div>
             </div>
         </footer>

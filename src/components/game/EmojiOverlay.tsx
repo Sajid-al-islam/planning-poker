@@ -82,12 +82,6 @@ export const FlyingEmoji: React.FC<FlyingEmojiProps> = ({
     const [startPosition] = React.useState(getRandomStartPosition());
 
     useEffect(() => {
-        
-        const emojiMessage = `Emoji ${emoji.emoji} sent by ${fromParticipantName}`;
-        const existingHistory = JSON.parse(localStorage.getItem('emoji_thrown') || '[]');
-        existingHistory.push(emojiMessage);
-        localStorage.setItem('emoji_thrown', JSON.stringify(existingHistory));
-
         const timer = setTimeout(onComplete, 3000);
         return () => clearTimeout(timer);
     }, [onComplete, emoji.emoji, fromParticipantName]);

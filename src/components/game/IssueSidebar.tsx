@@ -46,18 +46,18 @@ export const IssueSidebar: React.FC<IssueSidebarProps> = ({
             {/* Toggle Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="fixed right-0 top-1/2 -translate-y-1/2 glass px-2 py-4 rounded-l-xl z-30 hover:bg-white/10 transition-all"
+                className="fixed right-0 top-1/2 z-30 -translate-y-1/2 rounded-l-xl border border-r-0 border-[var(--landing-hairline)] bg-[var(--landing-surface-1)] px-2 py-4 text-[var(--landing-ink-muted)] hover:bg-[var(--landing-surface-2)] transition-all"
             >
                 {isOpen ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
             </button>
 
             {/* Sidebar */}
             <div
-                className={`fixed right-0 top-0 h-full w-80 glass-strong p-4 transform transition-transform duration-300 z-20 overflow-y-auto ${isOpen ? 'translate-x-0' : 'translate-x-full'
+                className={`fixed right-0 top-0 z-20 h-full w-80 overflow-y-auto border-l border-[var(--landing-hairline)] bg-[rgba(1,1,2,0.95)] p-4 backdrop-blur-xl transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'
                     }`}
             >
                 <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold gradient-text">Issues</h3>
+                    <h3 className="font-display text-2xl font-semibold tracking-[-0.04em] text-[var(--landing-ink)]">Issues</h3>
                     <div className="flex gap-2">
                         {isHost && (
                             <>
@@ -70,7 +70,7 @@ export const IssueSidebar: React.FC<IssueSidebarProps> = ({
                                 </button> */}
                                 <button
                                     onClick={onExportCSV}
-                                    className="p-2 glass rounded-lg hover:bg-white/10"
+                                    className="rounded-lg border border-[var(--landing-hairline)] bg-[var(--landing-surface-1)] p-2 hover:bg-[var(--landing-surface-2)]"
                                     title="Export CSV"
                                 >
                                     <Download className="w-4 h-4" />
@@ -96,7 +96,7 @@ export const IssueSidebar: React.FC<IssueSidebarProps> = ({
 
                 {/* Add Issue Form */}
                 {showAddForm && (
-                    <div className="glass p-4 rounded-xl mb-4 space-y-3">
+                    <div className="landing-room-subpanel mb-4 space-y-3 p-4">
                         <Input
                             placeholder="Issue title"
                             value={newIssueTitle}
@@ -132,14 +132,14 @@ export const IssueSidebar: React.FC<IssueSidebarProps> = ({
                 {/* Issues List */}
                 <div className="space-y-3">
                     {issues.length === 0 ? (
-                        <p className="text-center text-gray-500 py-8">
+                        <p className="py-8 text-center text-[var(--landing-ink-tertiary)]">
                             No issues yet. {isHost && 'Add your first issue!'}
                         </p>
                     ) : (
                         issues.map((issue) => (
                             <div
                                 key={issue.id}
-                                className={`glass p-3 rounded-lg cursor-pointer hover:bg-white/10 transition-all ${currentIssueId === issue.id ? 'border-2 border-primary-500' : ''
+                                className={`landing-room-subpanel cursor-pointer p-3 transition-all ${currentIssueId === issue.id ? 'border-[var(--landing-primary)] bg-[rgba(94,106,210,0.08)]' : ''
                                     } ${issue.isEstimated ? 'opacity-60' : ''}`}
                                 onClick={() => !issue.isEstimated && onSelectIssue(issue.id)}
                             >
@@ -149,7 +149,7 @@ export const IssueSidebar: React.FC<IssueSidebarProps> = ({
                                             {issue.title}
                                         </h4>
                                         {issue.description && (
-                                            <p className="text-sm text-gray-400 line-clamp-2">
+                                            <p className="line-clamp-2 text-sm text-[var(--landing-ink-subtle)]">
                                                 {issue.description}
                                             </p>
                                         )}
@@ -180,7 +180,7 @@ export const IssueSidebar: React.FC<IssueSidebarProps> = ({
                 </div>
 
                 {/* Legend */}
-                <div className="mt-6 pt-4 border-t border-white/10 text-xs text-gray-500">
+                <div className="mt-6 border-t border-[var(--landing-hairline)] pt-4 text-xs text-[var(--landing-ink-tertiary)]">
                     <p>Click an issue to start voting</p>
                     {isHost && <p className="mt-1">Import/Export via CSV for integration</p>}
                 </div>

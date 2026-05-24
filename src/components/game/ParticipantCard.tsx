@@ -50,7 +50,7 @@ export const ParticipantCard: React.FC<ParticipantCardProps> = ({
             onClick={onClick}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            className={`participant-card group ${hasVoted ? 'voted' : ''} ${onClick ? 'cursor-pointer' : ''
+            className={`landing-participant-card group ${hasVoted ? 'voted' : ''} ${onClick ? 'cursor-pointer' : ''
                 }`}
         >
             {/* Remove Button */}
@@ -60,7 +60,7 @@ export const ParticipantCard: React.FC<ParticipantCardProps> = ({
                         e.stopPropagation();
                         onRemove();
                     }}
-                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10"
+                    className="absolute -top-2 -right-2 z-10 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 shadow-lg opacity-0 transition-opacity hover:bg-red-600 group-hover:opacity-100"
                     title="Remove participant"
                 >
                     <X className="w-3 h-3 text-white" />
@@ -77,28 +77,28 @@ export const ParticipantCard: React.FC<ParticipantCardProps> = ({
 
             {/* Avatar */}
             <div
-                className="relative w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold text-white shadow-lg"
+                className="relative flex h-16 w-16 items-center justify-center rounded-full text-xl font-bold text-white shadow-lg"
                 style={{ backgroundColor: participant.color }}
             >
                 {getInitials(participant.name)}
 
                 {/* Host crown */}
                 {participant.isHost && (
-                    <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-yellow-500 flex items-center justify-center shadow-lg">
+                    <div className="absolute -top-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-yellow-500 shadow-lg">
                         <Crown className="w-4 h-4 text-white" />
                     </div>
                 )}
 
                 {/* Voted check */}
                 {hasVoted && !votesRevealed && (
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-green-500 flex items-center justify-center shadow-lg">
+                    <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 shadow-lg">
                         <Check className="w-3 h-3 text-white" />
                     </div>
                 )}
 
                 {/* Spectator badge */}
                 {participant.isSpectator && (
-                    <div className="absolute -bottom-1 -left-1 w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center shadow-lg" title="Spectator">
+                    <div className="absolute -bottom-1 -left-1 flex h-6 w-6 items-center justify-center rounded-full bg-primary-500 shadow-lg" title="Spectator">
                         <Eye className="w-3 h-3 text-white" />
                     </div>
                 )}
@@ -106,17 +106,17 @@ export const ParticipantCard: React.FC<ParticipantCardProps> = ({
 
             {/* Name */}
             <div className="text-center">
-                <p className="text-sm font-semibold text-white truncate max-w-[100px]">
+                <p className="max-w-[120px] truncate text-sm font-semibold text-white">
                     {participant.name}
                 </p>
                 {participant.isHost && (
-                    <p className="text-xs text-yellow-400">Host</p>
+                    <p className="text-xs uppercase tracking-[0.14em] text-yellow-400">Host</p>
                 )}
             </div>
 
             {/* Vote value (revealed) */}
             {votesRevealed && voteValue && (
-                <div className="absolute top-1 right-1 w-8 h-8 rounded-lg bg-primary-500/90 backdrop-blur-sm flex items-center justify-center font-bold text-sm text-white shadow-lg animate-slide-down">
+                <div className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg bg-primary-500/90 text-sm font-bold text-white shadow-lg animate-slide-down">
                     {voteValue}
                 </div>
             )}
@@ -125,11 +125,11 @@ export const ParticipantCard: React.FC<ParticipantCardProps> = ({
             {!votesRevealed && (
                 <div className="text-xs text-center">
                     {participant.isSpectator ? (
-                        <span className="text-blue-400">Spectator</span>
+                        <span className="text-primary-400">Spectator</span>
                     ) : hasVoted ? (
                         <span className="text-green-400">✓ Voted</span>
                     ) : (
-                        <span className="text-gray-500">Waiting...</span>
+                        <span className="text-[var(--landing-ink-tertiary)]">Waiting...</span>
                     )}
                 </div>
             )}

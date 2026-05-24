@@ -7,10 +7,11 @@ import { HowItWorks } from '../components/landing/HowItWorks';
 
 export const Landing: React.FC = () => {
     return (
-        <div className="min-h-screen">
+        <div className="min-h-screen bg-black text-white">
             <Header />
 
-            <main className="pt-16">
+            <main className="relative overflow-hidden pt-16">
+                <div className="landing-noise" />
                 <Hero />
 
                 <div id="features">
