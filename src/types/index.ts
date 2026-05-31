@@ -29,6 +29,7 @@ export interface Issue {
     id: string;
     title: string;
     description?: string;
+    taskLink?: string;
     estimate?: string;
     createdAt: number;
     isEstimated: boolean;

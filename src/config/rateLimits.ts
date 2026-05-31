@@ -1,21 +1,20 @@
 // Rate limiting configuration
-// Adjust these values to control Firebase read/write costs
 
 export const RATE_LIMITS = {
     // Emoji throwing cooldown (milliseconds between emoji throws per participant)
     EMOJI_THROW_COOLDOWN: 500, // 0.5 second
 
-    // Maximum emojis per participant per minute
-    MAX_EMOJIS_PER_MINUTE: 1000,
+    // Max emojis per participant per minute (aligned with 2s cooldown)
+    MAX_EMOJIS_PER_MINUTE: 500,
 
-    // Vote update debounce (milliseconds to wait before sending vote update)
-    VOTE_UPDATE_DEBOUNCE: 500, // 0.5 seconds
+    // Vote update debounce (ms to wait before sending vote update)
+    VOTE_UPDATE_DEBOUNCE: 500, // 0.5 seconds — prevents accidental double-clicks
 
-    // Firestore listener throttle (milliseconds between Firestore updates)
-    LISTENER_THROTTLE: 100, // 0.1 seconds
+    // Firestore listener throttle (ms between Firestore updates)
+    LISTENER_THROTTLE: 300, // 0.5 seconds — reduces read cost from realtime listeners
 
     // Maximum participants per game session
-    MAX_PARTICIPANTS: 1000,
+    MAX_PARTICIPANTS: 100,
 
     // Maximum issues per game session
     MAX_ISSUES: 100,

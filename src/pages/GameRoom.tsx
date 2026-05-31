@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Copy, Eye, RotateCcw, LogOut, Check } from 'lucide-react';
+import { Copy, Eye, RotateCcw, LogOut, Check, ExternalLink } from 'lucide-react';
 import { Button } from '../components/common/Button';
 import { VotingCards } from '../components/game/VotingCards';
 import { ParticipantCard } from '../components/game/ParticipantCard';
 import { ResultsChart } from '../components/game/ResultsChart';
 import { IssueSidebar } from '../components/game/IssueSidebar';
 import { EmojiOverlay, EmojiContainer } from '../components/game/EmojiOverlay';
+import { Modal } from '../components/common/Modal';
+import { ToastContainer, showToast } from '../components/common/Toast';
 import type { GameSession, Participant, Vote, Issue, EmojiThrow, VoteValue } from '../types';
 import {
     listenToGameSession,
@@ -46,6 +48,15 @@ export const GameRoom: React.FC = () => {
     const [copied, setCopied] = useState(false);
     const [hoveredParticipantId, setHoveredParticipantId] = useState<string | null>(null);
     const [participantToRemove, setParticipantToRemove] = useState<Participant | null>(null);
+    const [showFullDescription, setShowFullDescription] = useState(false);
+
+    const truncateWords = (text: string, max: number): { truncated: string; isTruncated: boolean } => {
+        const words = text.split(/\s+/);
+        if (words.length <= max) return { truncated: text, isTruncated: false };
+        return { truncated: words.slice(0, max).join(' ') + '...', isTruncated: true };
+    };
+
+    const DESCRIPTION_WORD_LIMIT = 15;
 
     const currentParticipant = participants.find((p) => p.id === currentParticipantId);
     const isHost = currentParticipant?.isHost || false;
@@ -101,15 +112,9 @@ export const GameRoom: React.FC = () => {
 
         const unestimatedIssues = issues.filter(issue => !issue.isEstimated);
 
-        // If there's exactly one unestimated issue and no current issue selected, auto-select it
+        // Auto-select only when there's exactly one unestimated issue remaining
         if (unestimatedIssues.length === 1 && !gameSession.currentIssue) {
             setCurrentIssue(gameId, unestimatedIssues[0].id);
-        }
-        // If a new issue was just added (length increased), auto-select the newest one
-        else if (unestimatedIssues.length > 0 && !gameSession.currentIssue) {
-            // Get the most recently added issue (last in array)
-            const newestIssue = unestimatedIssues[unestimatedIssues.length - 1];
-            setCurrentIssue(gameId, newestIssue.id);
         }
     }, [gameId, gameSession, issues, isHost]);
 
@@ -165,12 +170,12 @@ export const GameRoom: React.FC = () => {
         const result = await throwEmoji(gameId, currentParticipantId, selectedParticipant.id, emoji);
 
         if (!result.success) {
-            console.log(result);
-            console.warn('Failed to throw emoji:', result.error);
-            // Silently fail - rate limiting is normal behavior
+            if (result.cooldown) {
+                showToast('Please wait before sending another emoji', 'warning');
+            } else {
+                showToast(result.error || 'Failed to send emoji', 'warning');
+            }
         } else {
-            // console.log('Emoji thrown successfully:', emoji);
-            // Update recent emojis
             updateRecentEmojis(emoji);
         }
     };
@@ -181,10 +186,9 @@ export const GameRoom: React.FC = () => {
 
         throwEmoji(gameId, currentParticipantId, participantId, emoji).then(result => {
             if (result.success) {
-                // Update recent emojis
                 updateRecentEmojis(emoji);
             } else {
-                console.warn('Rate limited:', result.error);
+                showToast(result.error || 'Rate limit reached', 'warning');
             }
         });
     };
@@ -283,27 +287,53 @@ export const GameRoom: React.FC = () => {
             <div className="mx-auto max-w-7xl px-4 pt-8 md:px-6">
                 {/* Current Issue */}
                 {currentIssue && (
-                    <div className="landing-room-panel mb-8 animate-slide-down p-6 md:p-8">
-                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                    <div className="landing-room-panel mb-4 animate-slide-down p-4 md:p-5">
+                        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                             <div>
-                                <p className="landing-caption">Current Issue</p>
-                                <h2 className="mt-3 font-display text-[2rem] font-semibold tracking-[-0.04em] text-[var(--landing-ink)]">
+                                <p className="landing-caption text-xs">Current Issue</p>
+                                <h2 className="mt-2 font-display text-[1.2rem] md:text-[1.3rem] font-semibold tracking-[-0.04em] text-[var(--landing-ink)]">
                                     {currentIssue.title}
                                 </h2>
                             </div>
-                            <div className="rounded-full border border-[var(--landing-hairline)] bg-[var(--landing-surface-2)] px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-[var(--landing-primary-hover)]">
+                            <div className="rounded-full border border-[var(--landing-hairline)] bg-[var(--landing-surface-2)] px-2.5 py-0.5 text-[10px] uppercase tracking-[0.24em] text-[var(--landing-primary-hover)]">
                                 Active Round
                             </div>
                         </div>
-                        {currentIssue.description && (
-                            <p className="mt-4 max-w-3xl text-[15px] leading-7 text-[var(--landing-ink-subtle)]">{currentIssue.description}</p>
+                        {currentIssue.description && (() => {
+                            const { truncated, isTruncated } = truncateWords(currentIssue.description, DESCRIPTION_WORD_LIMIT);
+                            return (
+                                <div>
+                                    <p className="mt-2 max-w-3xl text-[13px] leading-6 text-[var(--landing-ink-subtle)]">
+                                        {isTruncated ? truncated : currentIssue.description}
+                                    </p>
+                                    {isTruncated && (
+                                        <button
+                                            onClick={() => setShowFullDescription(true)}
+                                            className="mt-1 text-xs text-[var(--landing-primary-hover)] hover:underline"
+                                        >
+                                            View full description
+                                        </button>
+                                    )}
+                                </div>
+                            );
+                        })()}
+                        {currentIssue.taskLink && (
+                            <a
+                                href={currentIssue.taskLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="mt-2 inline-flex items-center gap-1.5 text-xs text-[var(--landing-primary-hover)] hover:underline truncate max-w-full"
+                            >
+                                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+                                <span className="truncate">{currentIssue.taskLink}</span>
+                            </a>
                         )}
                     </div>
                 )}
 
                 {/* Participants Grid */}
-                <div className="mb-10">
-                    <div className="mb-5 flex flex-col items-center gap-2 text-center">
+                <div className="mb-12">
+                    <div className="mb-6 flex flex-col items-center gap-2 text-center">
                         <p className="landing-caption">Room Presence</p>
                         <h3 className="font-display text-[2rem] font-semibold tracking-[-0.04em] text-[var(--landing-ink)]">
                             Participants ({participants.length})
@@ -335,7 +365,10 @@ export const GameRoom: React.FC = () => {
 
                 {/* Voting Cards */}
                 {currentIssue && !gameSession.votesRevealed && !currentParticipant?.isSpectator && (
-                    <div className="landing-room-panel mb-10 p-6 md:p-8">
+                    <div className="landing-room-panel mb-12 p-6 md:p-8 animate-slide-up">
+                        <h3 className="mb-6 text-center font-display text-[1.5rem] font-semibold tracking-[-0.04em] text-[var(--landing-ink)]">
+                            Cast Your Vote
+                        </h3>
                         <VotingCards
                             selectedValue={selectedValue}
                             onSelectValue={handleVoteSelect}
@@ -346,7 +379,7 @@ export const GameRoom: React.FC = () => {
 
                 {/* Host Controls */}
                 {isHost && currentIssue && (
-                    <div className="mb-10 flex justify-center gap-4">
+                    <div className="mb-12 flex justify-center gap-4">
                         {!gameSession.votesRevealed ? (
                             <Button
                                 onClick={handleRevealVotes}
@@ -374,7 +407,7 @@ export const GameRoom: React.FC = () => {
 
                 {/* Results */}
                 {gameSession.votesRevealed && votes.length > 0 && (
-                    <div className="mb-8">
+                    <div className="mb-12 py-4">
                         <ResultsChart
                             votes={votes.filter(v => {
                                 const p = participants.find(p => p.id === v.participantId);
@@ -389,13 +422,23 @@ export const GameRoom: React.FC = () => {
             <IssueSidebar
                 issues={issues}
                 currentIssueId={gameSession.currentIssue}
-                onAddIssue={(title, description) => gameId && addIssue(gameId, title, description)}
+                onAddIssue={async (title, description, taskLink) => {
+                    if (gameId) await addIssue(gameId, title, description, taskLink);
+                }}
                 onSelectIssue={(issueId) => gameId && setCurrentIssue(gameId, issueId)}
                 onMarkEstimated={(issueId, estimate) =>
                     gameId && markIssueEstimated(gameId, issueId, estimate)
                 }
                 onDeleteIssue={(issueId) => gameId && deleteIssue(gameId, issueId)}
-                onImportCSV={(csvText) => gameId && importIssuesFromCSV(gameId, csvText)}
+                onImportCSV={async (csvText) => {
+                    if (!gameId) return;
+                    try {
+                        const count = await importIssuesFromCSV(gameId, csvText);
+                        showToast(`Imported ${count} issues`, 'success');
+                    } catch {
+                        showToast('Failed to import CSV', 'error');
+                    }
+                }}
                 onExportCSV={() => {
                     const csv = exportIssuesToCSV(issues);
                     const blob = new Blob([csv], { type: 'text/csv' });
@@ -406,6 +449,8 @@ export const GameRoom: React.FC = () => {
                     a.click();
                 }}
                 isHost={isHost}
+                votingLocked={!!gameSession.currentIssue && votes.length > 0}
+                onToast={showToast}
             />
 
             {/* Emoji Overlay */}
@@ -418,6 +463,9 @@ export const GameRoom: React.FC = () => {
 
             {/* Emoji Container */}
             <EmojiContainer emojis={emojis} participants={participants} />
+
+            {/* Toast notifications */}
+            <ToastContainer />
 
             {/* Remove Participant Confirmation Modal */}
             {participantToRemove && (
@@ -439,6 +487,12 @@ export const GameRoom: React.FC = () => {
                     </div>
                 </div>
             )}
+
+            <Modal isOpen={showFullDescription} onClose={() => setShowFullDescription(false)} title="Full Description" maxWidth="xl">
+                <p className="text-[15px] leading-7 text-[var(--landing-ink-subtle)] whitespace-pre-wrap">
+                    {currentIssue?.description}
+                </p>
+            </Modal>
         </div>
     );
 };

@@ -12,7 +12,8 @@ import {
 } from 'firebase/firestore';
 import { db, COLLECTIONS } from '../config/firebase';
 import type { Issue } from '../types';
-import { generateId } from '../utils/helpers';
+import { generateId, sanitizeInput } from '../utils/helpers';
+import { RATE_LIMITS } from '../config/rateLimits';
 
 /**
  * Add a new issue to the game
@@ -20,20 +21,33 @@ import { generateId } from '../utils/helpers';
 export const addIssue = async (
     gameId: string,
     title: string,
-    description?: string
+    description?: string,
+    taskLink?: string
 ): Promise<string> => {
     try {
         const issueId = generateId();
+        const sanitizedTitle = sanitizeInput(title, 200);
+        const sanitizedDescription = description ? sanitizeInput(description, 2000) : undefined;
+        const sanitizedTaskLink = taskLink ? sanitizeInput(taskLink, 500) : undefined;
+
+        if (!sanitizedTitle) {
+            throw new Error('Issue title cannot be empty');
+        }
 
         // Get current issue count for ordering
         const issuesRef = collection(db, COLLECTIONS.GAME_SESSIONS, gameId, COLLECTIONS.ISSUES);
         const issuesSnap = await getDocs(issuesRef);
         const order = issuesSnap.size;
 
-        const issue: Issue = {
+        if (order >= RATE_LIMITS.MAX_ISSUES) {
+            throw new Error(`Maximum ${RATE_LIMITS.MAX_ISSUES} issues allowed per game`);
+        }
+
+        const issue = {
             id: issueId,
-            title,
-            description,
+            title: sanitizedTitle,
+            ...(sanitizedDescription && { description: sanitizedDescription }),
+            ...(sanitizedTaskLink && { taskLink: sanitizedTaskLink }),
             createdAt: Date.now(),
             isEstimated: false,
             order,
@@ -148,9 +162,13 @@ export const importIssuesFromCSV = async (
         let importedCount = 0;
 
         for (const line of lines) {
-            const [title, description] = line.split(',').map(s => s.trim());
+            const parts = line.split(',').map(s => s.trim());
+            const title = parts[0];
+            const description = parts[1];
+            const taskLink = parts[2];
             if (title) {
-                await addIssue(gameId, title, description);
+                if (importedCount >= 50) break;
+                await addIssue(gameId, title, description, taskLink);
                 importedCount++;
             }
         }
@@ -165,10 +183,17 @@ export const importIssuesFromCSV = async (
 /**
  * Export issues to CSV format
  */
+const escapeCSV = (value: string): string => {
+    // Prevent CSV formula injection by prefixing with single quote
+    const sanitized = /^[=+\-@]/.test(value) ? `'${value}` : value;
+    // Escape quotes
+    return sanitized.replace(/"/g, '""');
+};
+
 export const exportIssuesToCSV = (issues: Issue[]): string => {
-    const header = 'Title,Description,Estimate\n';
+    const header = 'Title,Description,TaskLink,Estimate\n';
     const rows = issues.map(issue =>
-        `"${issue.title}","${issue.description || ''}","${issue.estimate || ''}"`
+        `"${escapeCSV(issue.title)}","${escapeCSV(issue.description || '')}","${escapeCSV(issue.taskLink || '')}","${escapeCSV(issue.estimate || '')}"`
     ).join('\n');
     return header + rows;
 };

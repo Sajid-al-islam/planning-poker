@@ -1,0 +1,54 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Game Sessions - top-level collection
+    match /gameSessions/{gameId} {
+      allow read: if true;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && request.auth.uid == resource.data.hostId;
+      allow delete: if false;
+
+      // Participants - each doc ID must match the user's auth UID
+      match /participants/{participantId} {
+        allow read: if true;
+        allow create: if request.auth != null && request.auth.uid == participantId;
+        allow delete: if request.auth != null && (
+          request.auth.uid == participantId ||
+          get(/databases/$(database)/documents/gameSessions/$(gameId)).data.hostId == request.auth.uid
+        );
+        allow update: if false;
+      }
+
+      // Votes - each doc ID must match the voter's auth UID
+      match /votes/{voteId} {
+        allow read: if true;
+        allow create: if request.auth != null
+                       && request.auth.uid == voteId
+                       && request.resource.data.participantId == request.auth.uid;
+        allow delete: if request.auth != null
+                       && get(/databases/$(database)/documents/gameSessions/$(gameId)).data.hostId == request.auth.uid;
+        allow update: if false;
+      }
+
+      // Issues - host-only management
+      match /issues/{issueId} {
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow update: if request.auth != null
+                       && get(/databases/$(database)/documents/gameSessions/$(gameId)).data.hostId == request.auth.uid;
+        allow delete: if request.auth != null
+                       && get(/databases/$(database)/documents/gameSessions/$(gameId)).data.hostId == request.auth.uid;
+      }
+
+      // Emojis - must be sent from yourself
+      match /emojis/{emojiId} {
+        allow read: if true;
+        allow create: if request.auth != null
+                       && request.resource.data.fromId == request.auth.uid;
+        allow delete: if false;
+        allow update: if false;
+      }
+    }
+  }
+}

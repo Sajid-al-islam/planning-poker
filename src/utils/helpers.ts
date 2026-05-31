@@ -1,6 +1,16 @@
 import { nanoid } from 'nanoid';
 
 /**
+ * Sanitize user input: trim, strip HTML, limit length.
+ */
+export const sanitizeInput = (input: string, maxLength: number = 500): string => {
+    return input
+        .trim()
+        .replace(/<[^>]*>/g, '')
+        .slice(0, maxLength);
+};
+
+/**
  * Generate a unique game session ID
  */
 export const generateGameId = (): string => {

@@ -56,14 +56,14 @@ export const Hero: React.FC = () => {
                                 <span className="landing-dot" />
                                 <span className="landing-dot" />
                             </div>
-                            <div className="landing-shot-url">planning-poker.app</div>
+                            <div className="landing-shot-url">{window.location.host}</div>
                         </div>
 
-                        <div className="landing-image-placeholder mt-3">
-                            <div className="landing-image-placeholder-copy">
-                                Product screenshot goes here
-                            </div>
-                        </div>
+                            <img
+                                src="/planning_poker.webp"
+                                alt="Planning Poker app screenshot"
+                                className="mt-3 w-full rounded-lg"
+                            />
                     </div>
                 </div>
             </div>

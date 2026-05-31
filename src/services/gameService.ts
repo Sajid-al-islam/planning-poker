@@ -9,10 +9,11 @@ import {
     deleteDoc,
     getDocs,
 } from 'firebase/firestore';
-import { db, COLLECTIONS } from '../config/firebase';
+import { db, COLLECTIONS, auth } from '../config/firebase';
 import type { GameSession, Participant } from '../types';
-import { generateGameId, generateParticipantId } from '../utils/helpers';
+import { generateGameId, sanitizeInput } from '../utils/helpers';
 import { getAvatarColor } from '../types';
+import { RATE_LIMITS } from '../config/rateLimits';
 
 /**
  * Create a new game session
@@ -21,26 +22,29 @@ export const createGameSession = async (
     hostName: string,
     isSpectator: boolean = false
 ): Promise<{ gameId: string; participantId: string }> => {
+    const uid = auth.currentUser?.uid;
+    if (!uid) throw new Error('Not authenticated');
+
     const gameId = generateGameId();
-    const participantId = generateParticipantId();
     const now = Date.now();
+    const sanitizedName = sanitizeInput(hostName, 50);
 
     // Create game session
     const gameSession: GameSession = {
         id: gameId,
-        name: `${hostName}'s Planning Poker`,
+        name: `${sanitizedName}'s Planning Poker`,
         createdAt: now,
-        createdBy: participantId,
+        createdBy: uid,
         currentIssue: null,
         votesRevealed: false,
-        hostId: participantId,
+        hostId: uid,
     };
 
     // Create host participant
     const host: Participant = {
-        id: participantId,
-        name: hostName,
-        avatar: hostName.charAt(0).toUpperCase(),
+        id: uid,
+        name: sanitizedName,
+        avatar: sanitizedName.charAt(0).toUpperCase(),
         color: getAvatarColor(0),
         joinedAt: now,
         isHost: true,
@@ -50,11 +54,11 @@ export const createGameSession = async (
     // Save to Firestore
     await setDoc(doc(db, COLLECTIONS.GAME_SESSIONS, gameId), gameSession);
     await setDoc(
-        doc(db, COLLECTIONS.GAME_SESSIONS, gameId, COLLECTIONS.PARTICIPANTS, participantId),
+        doc(db, COLLECTIONS.GAME_SESSIONS, gameId, COLLECTIONS.PARTICIPANTS, uid),
         host
     );
 
-    return { gameId, participantId };
+    return { gameId, participantId: uid };
 };
 
 /**
@@ -66,6 +70,9 @@ export const joinGameSession = async (
     isSpectator: boolean = false
 ): Promise<{ participantId: string; success: boolean; error?: string }> => {
     try {
+        const uid = auth.currentUser?.uid;
+        if (!uid) return { participantId: '', success: false, error: 'Not authenticated' };
+
         // Check if game exists
         const gameDoc = await getDoc(doc(db, COLLECTIONS.GAME_SESSIONS, gameId));
         if (!gameDoc.exists()) {
@@ -82,11 +89,15 @@ export const joinGameSession = async (
         const participantsSnap = await getDocs(participantsRef);
         const participantCount = participantsSnap.size;
 
-        const participantId = generateParticipantId();
+        if (participantCount >= RATE_LIMITS.MAX_PARTICIPANTS) {
+            return { participantId: '', success: false, error: `Game is full (max ${RATE_LIMITS.MAX_PARTICIPANTS} participants)` };
+        }
+        const sanitizedName = sanitizeInput(participantName, 50);
+
         const participant: Participant = {
-            id: participantId,
-            name: participantName,
-            avatar: participantName.charAt(0).toUpperCase(),
+            id: uid,
+            name: sanitizedName,
+            avatar: sanitizedName.charAt(0).toUpperCase(),
             color: getAvatarColor(participantCount),
             joinedAt: Date.now(),
             isHost: false,
@@ -94,11 +105,11 @@ export const joinGameSession = async (
         };
 
         await setDoc(
-            doc(db, COLLECTIONS.GAME_SESSIONS, gameId, COLLECTIONS.PARTICIPANTS, participantId),
+            doc(db, COLLECTIONS.GAME_SESSIONS, gameId, COLLECTIONS.PARTICIPANTS, uid),
             participant
         );
 
-        return { participantId, success: true };
+        return { participantId: uid, success: true };
     } catch (error) {
         console.error('Error joining game:', error);
         return { participantId: '', success: false, error: 'Failed to join game' };
@@ -210,6 +221,14 @@ export const removeParticipant = async (
     participantId: string
 ): Promise<void> => {
     try {
+        const uid = auth.currentUser?.uid;
+        if (!uid) throw new Error('Not authenticated');
+
+        // Verify caller is the host
+        const session = await getGameSession(gameId);
+        if (!session) throw new Error('Game not found');
+        if (session.hostId !== uid) throw new Error('Only the host can remove participants');
+
         // Remove participant
         await deleteDoc(
             doc(db, COLLECTIONS.GAME_SESSIONS, gameId, COLLECTIONS.PARTICIPANTS, participantId)

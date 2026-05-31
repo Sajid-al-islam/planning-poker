@@ -13,6 +13,12 @@ export const Footer: React.FC = () => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-6 text-sm text-[var(--landing-ink-subtle)]">
+                    <a href="/privacy" className="transition-colors hover:text-[var(--landing-ink)]">
+                        Privacy
+                    </a>
+                    <a href="/terms" className="transition-colors hover:text-[var(--landing-ink)]">
+                        Terms
+                    </a>
                     <a href="#features" className="transition-colors hover:text-[var(--landing-ink)]">
                         Features
                     </a>

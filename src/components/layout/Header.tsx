@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowUpRight, Circle } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 
 export const Header: React.FC = () => {
     const navigate = useNavigate();
@@ -12,12 +12,11 @@ export const Header: React.FC = () => {
                     onClick={() => navigate('/')}
                     className="flex cursor-pointer items-center gap-3"
                 >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--landing-hairline)] bg-[var(--landing-surface-1)]">
-                        <Circle className="h-4 w-4 fill-[var(--landing-primary)] text-[var(--landing-primary)]" />
-                    </div>
-                    <span className="font-display text-lg uppercase tracking-[0.22em] text-[var(--landing-ink)] md:text-xl">
-                        Planning Poker
-                    </span>
+                    <img
+                        src="/nobg.webp"
+                        alt="Planning Poker"
+                        className="h-8 md:h-9 w-auto"
+                    />
                 </div>
 
                 <button

@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { createGameSession, joinGameSession } from '../services/gameService';
+import { ensureAuth } from '../config/firebase';
 
 export const CreateGame: React.FC = () => {
     const navigate = useNavigate();
@@ -16,6 +17,17 @@ export const CreateGame: React.FC = () => {
     const [mode, setMode] = useState<'create' | 'join' | null>(null);
     const [gameId, setGameId] = useState('');
     const [isSpectator, setIsSpectator] = useState(false);
+    const [authReady, setAuthReady] = useState(false);
+
+    // Wait for anonymous auth before allowing game actions
+    useEffect(() => {
+        ensureAuth()
+            .then(() => setAuthReady(true))
+            .catch((err) => {
+                console.error('Auth failed:', err);
+                setError('Failed to initialize. Please refresh the page.');
+            });
+    }, []);
 
     // Auto-populate gameId if coming from a direct link
     useEffect(() => {
@@ -85,6 +97,18 @@ export const CreateGame: React.FC = () => {
             setLoading(false);
         }
     };
+
+    if (!authReady) {
+        return (
+            <div className="min-h-screen flex items-center justify-center px-4">
+                <div className="text-center">
+                    <div className="spinner w-12 h-12 mx-auto mb-4"></div>
+                    <p className="text-gray-400">Initializing...</p>
+                    {error && <p className="mt-2 text-sm text-red-400">{error}</p>}
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen flex items-center justify-center px-4">
